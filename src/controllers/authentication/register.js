@@ -4,7 +4,7 @@ import { sendEmail, validate } from "../../services"
 
 export async function register(req, res){
     try {
-        const {email, password, ["confirm-password"]:confirmPassword } = req.body
+        const {email, password, confirmPassword } = req.body
         /// console.log(email, password, confirmPassword);
 
         // Validation 
@@ -19,10 +19,10 @@ export async function register(req, res){
         // match password
         if(password !== confirmPassword) throw new ErrorHandler({message: "Password not match.", code: 422})
 
-        // is already exists
-        if(await User.findOne({email})) throw new ErrorHandler({message: "User already exists. Login now.", code: 200})
-
         // Create Document
+        // is already exists
+        if(await User.findOne({email})) throw new ErrorHandler({message: "User already exists. Login now.", code: 422})
+
         const userDoc =  await User({email})
         // save hash password
         await userDoc.hashPassword(password)
@@ -34,8 +34,13 @@ export async function register(req, res){
         await sendEmail({to: email, OTP, subject: "Verify your email via otp"})
 
         // save user
-        const user = await userDoc.save()
+        let user = await userDoc.save()
 
+        user = user.toObject()
+
+        delete user.password
+        delete user.otp
+        
         res.send(user)
     } catch (error) {
         console.log(error)

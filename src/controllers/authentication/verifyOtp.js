@@ -3,7 +3,7 @@ import { ErrorHandler, SaveJwt } from "../../utils"
 
 export async function verifyOtp(req, res){
     try {
-        const { email , otp , forResetPwd} = req.body
+        const { email , otp } = req.body
 
         const userDoc = await User.findOne({email})
 
@@ -15,9 +15,6 @@ export async function verifyOtp(req, res){
         if( !isVerify ) throw new ErrorHandler({message: "Wrong Otp.", code: 422}) 
 
         await userDoc.save()
-
-        if(forResetPwd)
-            return res.send("Verified")
 
         // after register and verify otp save jwt
         const payload = {email}

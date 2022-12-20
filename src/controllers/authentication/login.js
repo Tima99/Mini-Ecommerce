@@ -25,11 +25,20 @@ export async function login(req, res){
         else{
             // if not verified send verify otp
             const OTP = await userDoc.generateOtp()
+            // console.log(OTP);
             await sendEmail({to: email, OTP, subject: "Verified your email"})
             await userDoc.save()
+            res.send("verify your email")
+            return
         }
 
-        res.send(userDoc)
+        const user = userDoc.toObject()
+
+        delete user.password;
+        delete user.otp;
+
+        res.send(user)
+
     } catch (error) {
         console.log(error);
 
