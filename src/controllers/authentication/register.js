@@ -28,7 +28,7 @@ export async function register(req, res){
         await userDoc.hashPassword(password)
         // generate otp and save
         const OTP = userDoc.generateOtp()
-        console.log(`Verify OTP is ${OTP}`)
+        // console.log(`Verify OTP is ${OTP}`)
 
         // send email
         await sendEmail({to: email, OTP, subject: "Verify your email via otp"})
